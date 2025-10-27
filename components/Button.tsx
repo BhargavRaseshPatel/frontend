@@ -8,9 +8,11 @@ import Typo from './Type'
 
 const Button = ({ style, onPress, loading = false, children }: ButtonProps) => {
     if (loading) {
-        <View style={[styles.button, style, { backgroundColor: "transparent" }]}>
-            <Loading />
-        </View>
+        return (
+            <View style={[styles.button, style, { backgroundColor: "transparent" }]}>
+                <Loading />
+            </View>
+        )
     }
 
     return (

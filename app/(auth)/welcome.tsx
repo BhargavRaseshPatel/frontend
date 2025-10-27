@@ -11,7 +11,7 @@ import { useRouter } from 'expo-router'
 const welcome = () => {
     const router = useRouter()
     return (
-        <ScreenWrapper showPattern>
+        <ScreenWrapper showPattern bgOpacity={0.8}>
             <View style={style.container} >
                 <View style={{alignItems : 'center'}}>
                     <Typo color={colors.white} size={43} fontWeight={"900"}>
