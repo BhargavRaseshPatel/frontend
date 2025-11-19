@@ -5,21 +5,36 @@ import Typo from '@/components/Type'
 import { colors, radius, spacingX, spacingY } from '@/constants/theme'
 import BackButton from '@/components/BackButton'
 import Input from '@/components/Input'
-import * as Icons from 'phosphor-react-native' 
+import * as Icons from 'phosphor-react-native'
 import { verticalScale } from '@/utils/styling'
 import { useRouter } from 'expo-router'
 import Button from '@/components/Button'
+import { useAuth } from '@/contexts/authContext'
 
 const Register = () => {
+    const nameRef = useRef("")
     const emailRef = useRef("")
     const passwordRef = useRef("")
     const [isLoading, setIsLoading] = useState(false)
     const router = useRouter()
 
-    const handleSubmit = () => {
-        if(!emailRef.current || !passwordRef.current ) {
-            Alert.alert("Login", "Please fill all the fields")
+    const { signUp } = useAuth()
+
+
+    const handleSubmit = async () => {
+        if (!emailRef.current || !passwordRef.current || !nameRef) {
+            Alert.alert("Sign Up", "Please fill all the fields")
             return
+        }
+
+        try {
+            setIsLoading(true)
+            await signUp(emailRef.current, passwordRef.current, nameRef.current, "")
+        } catch (error: any) {
+            Alert.alert("Registration Error", error.message)
+        }
+        finally {
+            setIsLoading(false)
         }
 
     }
@@ -30,34 +45,35 @@ const Register = () => {
                 <View style={styles.container}>
                     <View style={styles.header}>
                         <BackButton iconSize={28} />
-                        <Typo size={17} color={colors.white}>Forget your password?</Typo>
+                        <Typo size={17} color={colors.white}>Need some help?</Typo>
                     </View>
 
                     <View style={styles.content}>
                         <ScrollView contentContainerStyle={styles.form} showsVerticalScrollIndicator={false}>
-                            <View style={{gap : spacingY._10, marginBottom : spacingY._15}}>
+                            <View style={{ gap: spacingY._10, marginBottom: spacingY._15 }}>
                                 <Typo size={28} fontWeight={"600"}>
-                                    Welcome back
+                                    Getting Started
                                 </Typo>
 
                                 <Typo color={colors.neutral600}>
-                                    We are happy to see you
+                                    Create an account to continue
                                 </Typo>
                             </View>
 
-                            <Input placeholder='Enter your email' icon={<Icons.AtIcon size={verticalScale(26)} color={colors.neutral600}/>} onChangeText={(value : string) => emailRef.current = value}/>
-                            <Input placeholder='Enter your password' secureTextEntry icon={<Icons.LockIcon size={verticalScale(26)} color={colors.neutral600}/>} onChangeText={(value : string) => passwordRef.current = value}/>
-                            
-                            <View style={{marginTop : spacingY._25, gap: spacingY._15}}>
+                            <Input placeholder='Enter your name' icon={<Icons.UserIcon size={verticalScale(26)} color={colors.neutral600} />} onChangeText={(value: string) => nameRef.current = value} />
+                            <Input placeholder='Enter your email' icon={<Icons.AtIcon size={verticalScale(26)} color={colors.neutral600} />} onChangeText={(value: string) => emailRef.current = value} />
+                            <Input placeholder='Enter your password' secureTextEntry icon={<Icons.LockIcon size={verticalScale(26)} color={colors.neutral600} />} onChangeText={(value: string) => passwordRef.current = value} />
+
+                            <View style={{ marginTop: spacingY._25, gap: spacingY._15 }}>
                                 <Button loading={isLoading} onPress={handleSubmit}>
-                                    <Typo fontWeight={'bold'} color={colors.black} size={20}>Login</Typo>
+                                    <Typo fontWeight={'bold'} color={colors.black} size={20}>Sign Up</Typo>
                                 </Button>
 
                                 <View style={styles.footer}>
-                                    <Typo>Don't have an account?</Typo>
-                                    <Pressable onPress={() => router.push('/(auth)/register')}>
+                                    <Typo>Already have an account?</Typo>
+                                    <Pressable onPress={() => router.push('/(auth)/login')}>
                                         <Typo fontWeight={'bold'} color={colors.primaryDark}>
-                                            Sign up
+                                            Login
                                         </Typo>
                                     </Pressable>
                                 </View>
