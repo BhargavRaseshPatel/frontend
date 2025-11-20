@@ -17,3 +17,21 @@ export const testSocket = (paylaod: any, off: boolean = false) => {
         socket.emit("testSocket", paylaod) // sending payload as data
     }
 }
+
+export const updateProfile = (paylaod: any, off: boolean = false) => {
+    const socket = getSocket();
+
+    if (!socket) {
+        console.log("Socket is not connected")
+        return;
+    }
+
+    if (off) {
+        // turn off listening to this event
+        socket.off("updateProfile", paylaod) // payload is the callback
+    } else if (typeof paylaod == 'function') {
+        socket.on("updateProfile", paylaod) // payload as callback for this event
+    } else {
+        socket.emit("updateProfile", paylaod) // sending payload as data
+    }
+}
