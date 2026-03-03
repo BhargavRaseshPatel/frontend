@@ -1,5 +1,5 @@
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ScreenWrapper from '@/components/ScreenWrapper'
 import Typo from '@/components/Type'
 import { colors, radius, spacingX, spacingY } from '@/constants/theme'
@@ -16,6 +16,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { Image } from 'expo-image'
 import Loading from '@/components/Loading'
 import { uploadFileToCloudinary } from '@/services/imageService'
+import { getMessages, newMessage } from '@/socket/socketEvent'
+import { MessageProps, ResponseProps } from '@/types'
 
 const Conversation = () => {
     const { user: currentUser } = useAuth()
@@ -23,6 +25,7 @@ const Conversation = () => {
     const [message, setMessage] = useState("")
     const [selectedFile, setSelectedFile] = useState<{ uri: string } | null>(null)
     const [loading, setLoading] = useState(false)
+    const [messages, setMessages] = useState<MessageProps[]>([])
 
     const participants = JSON.parse(stringifiedParticipants as string);
 
@@ -32,6 +35,34 @@ const Conversation = () => {
 
     if (isDirect && otherParticipant) {
         conversationAvatar = otherParticipant.avatar
+    }
+
+    useEffect(() => {
+        newMessage(newMessageHandler)
+        getMessages(messageHandler)
+        getMessages({ conversationId })
+
+        return () => {
+            newMessage(newMessageHandler)
+            getMessages(messageHandler)
+        }
+    }, [])
+
+    const messageHandler = (res: ResponseProps) => {
+        if (res.success) setMessages(res.data)
+    }
+
+    const newMessageHandler = (res: ResponseProps) => {
+        setLoading(false)
+        console.log(res);
+
+        if (res.success) {
+            if (res.data.conversationId == conversationId) {
+                setMessages((prev) => [res.data as MessageProps, ...prev])
+            }
+        } else {
+            Alert.alert("Error", res.msg )
+        }
     }
 
     let conversationName = isDirect ? otherParticipant.name : name
@@ -66,9 +97,21 @@ const Conversation = () => {
                     attachment = uploadResult.data
                 } else {
                     setLoading(false);
-                    Alert.alert("Error","Could not send the image!")
+                    Alert.alert("Error", "Could not send the image!")
                 }
             }
+            newMessage({
+                conversationId,
+                sender: {
+                    id: currentUser.id,
+                    name: currentUser.name,
+                    avatar: currentUser.avatar
+                },
+                content: message.trim(),
+                attachment
+            });
+            setMessage("")
+            setSelectedFile(null)
         } catch (error: any) {
             console.log("Error sending message: ", error);
             Alert.alert("Error", "Failed to send message")
@@ -91,7 +134,7 @@ const Conversation = () => {
                 {/* message  */}
 
                 <View style={styles.content} >
-                    <FlatList data={null} inverted contentContainerStyle={styles.messagesContent} showsVerticalScrollIndicator={false}
+                    <FlatList data={messages} inverted contentContainerStyle={styles.messagesContent} showsVerticalScrollIndicator={false}
                         renderItem={({ item }) => (
                             <MessageItem item={item} isDirect={isDirect} />
                         )}

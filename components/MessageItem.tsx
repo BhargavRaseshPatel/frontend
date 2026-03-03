@@ -6,24 +6,35 @@ import { colors, radius, spacingX, spacingY } from '@/constants/theme'
 import { verticalScale } from '@/utils/styling'
 import Avatar from './Avatar'
 import Typo from './Type'
+import moment from 'moment'
+import { Image } from 'expo-image'
 
 const MessageItem = ({ item, isDirect }: { item: MessageProps, isDirect: boolean }) => {
 
     const { user: currentUser } = useAuth()
-    const isMe = item.isMe;
+    const isMe = currentUser?.id == item?.sender?.id;
+
+    const formattedDate = moment(item.createdAt).isSame(moment(), "day") ? 
+    moment(item.createdAt).format("h:mm A") : moment(item.createdAt).format("MMM D, h:mm A")
 
     return (
         <View style={[styles.messageConttainer, isMe ? styles.myMessage : styles.theirMessage]}>
-            { !isMe && !isDirect && (
-                <Avatar size={30} uri={null} style={styles.messageAvatar} />
+            {!isMe && !isDirect && (
+                <Avatar size={30} uri={item?.sender?.avatar} style={styles.messageAvatar} />
             )}
 
             <View style={[styles.messageBubble, isMe ? styles.myBubble : styles.theirBubble]}>
-                { isMe && !isDirect && <Typo color={colors.neutral900} >{item.sender.name}</Typo>}
+                {isMe && !isDirect }
 
-                { item.content && <Typo size={15}>{item.content}</Typo>}
+                {
+                    item.attachement && (
+                        <Image source={item.attachement} contentFit="cover" style={styles.attachement} transition={100} />
+                    )
+                }
 
-                <Typo style={{alignSelf : 'flex-end'}} size={11} fontWeight={'500'} color={colors.neutral600}>{item.createdAt}</Typo>
+                {item.content && <Typo size={15}>{item.content}</Typo>}
+
+                <Typo style={{ alignSelf: 'flex-end' }} size={11} fontWeight={'500'} color={colors.neutral600}>{formattedDate}</Typo>
             </View>
         </View>
     )
@@ -46,7 +57,7 @@ const styles = StyleSheet.create({
     messageAvatar: {
         alignSelf: "flex-end"
     },
-    attachment: {
+    attachement: {
         height: verticalScale(180),
         width: verticalScale(180),
         borderRadius: radius._10

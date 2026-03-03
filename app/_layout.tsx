@@ -8,7 +8,6 @@ const  StackLayout = () => {
     <Stack screenOptions={{headerShown : false}}>
       <Stack.Screen name='(main)/profileModal' options={{presentation : "modal"}}/>
       <Stack.Screen name='(main)/newConversation' options={{presentation : "modal"}}/>
-
     </Stack>
   )
 }

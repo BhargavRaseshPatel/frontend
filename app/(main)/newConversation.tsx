@@ -13,6 +13,8 @@ import { useAuth } from '@/contexts/authContext'
 import Button from '@/components/Button'
 import { verticalScale } from '@/utils/styling'
 import { getContacts, newConversation } from '@/socket/socketEvent'
+import { uploadFileToCloudinary } from '@/services/imageService'
+import { green } from 'react-native-reanimated/lib/typescript/Colors'
 
 const NewConversationalModal = () => {
 
@@ -53,6 +55,7 @@ const NewConversationalModal = () => {
     }, [])
 
     const processNewConversation = (res: any) => {
+        setIsLoading(false)
         console.log("new conversation result : ", res);
         if (res.success) {
             router.back();
@@ -105,9 +108,32 @@ const NewConversationalModal = () => {
         }
     }
 
-    const createGroup = () => {
+    const createGroup = async () => {
         if (!groupName.trim() || !currentUser || selectedParticipants.length < 2) {
             return;
+        }
+
+        setIsLoading(true);
+
+        try {
+
+            let avatar = null;
+            if (groupAvatar) {
+                const uploadResult = await uploadFileToCloudinary(groupAvatar, "group-avatars");
+                if (uploadResult.success) avatar = uploadResult.data
+            }
+
+            newConversation({
+                type : 'group',
+                participants : [currentUser.id, ...selectedParticipants],
+                name : groupName,
+                avatar
+            })
+        } catch (error: any) {
+            console.log("Error creating group", error);
+            Alert.alert("Error", error.message);
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -128,7 +154,8 @@ const NewConversationalModal = () => {
                         </View>
                     </View>
                 )}
-                <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contactList}>
+
+                {isGroupMode && <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.contactList}>
                     {contacts.map((user: any, index: number) => {
                         const isSelected = selectedParticipants.includes(user.id)
                         return (
@@ -143,7 +170,37 @@ const NewConversationalModal = () => {
                             </TouchableOpacity>
                         )
                     })}
-                </ScrollView>
+                </ScrollView>}
+
+                {!isGroupMode && (
+                    <ScrollView
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={styles.contactList}
+                    >
+                        {contacts.map((contactUser: any) => {
+                            if (currentUser?.id === contactUser.id) return null
+
+                            const isSelected = selectedParticipants.includes(contactUser.id)
+
+                            return (
+                                <TouchableOpacity
+                                    key={contactUser.id}
+                                    style={[
+                                        styles.contactRow,
+                                        isSelected && styles.selectedContact,
+                                    ]}
+                                    onPress={() => onSelectUser(contactUser)}
+                                >
+                                    <Avatar size={45} uri={contactUser.avatar} />
+                                    <Typo fontWeight={"500"}>{contactUser.name}</Typo>
+                                </TouchableOpacity>
+                            )
+                        })}
+
+                    </ScrollView>
+                )}
+
+
                 {isGroupMode && selectedParticipants.length >= 2 && (
                     <View style={styles.createGroupButton}>
                         <Button onPress={createGroup} disabled={!groupName.trim()} loading={isLoading}>
