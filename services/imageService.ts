@@ -44,7 +44,7 @@ export const getAvatarPath = (file: any, isGroup = false) => {
 
     if (file && typeof file == 'object') return file.uri
 
-    if (isGroup) return require('../assets/images/drive-download/defaultGroupAvatar.png');
+    if (isGroup) return require('../assets/images/drive_download/default_avatar.png');
 
-    return require('../assets/images/drive-download/defaultGroupAvatar.png')
+    return require('../assets/images/drive_download/default_avatar.png')
 }

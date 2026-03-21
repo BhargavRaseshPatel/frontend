@@ -13,7 +13,7 @@ const SplashScreen = () => {
     return (
         <View style={styles.container}>
             <StatusBar barStyle={'light-content'} backgroundColor={colors.neutral900} />
-            <Animated.Image source={require('../assets/images/drive-download/splashImage.png')} entering={FadeInDown.duration(700).springify()} style={styles.logo} resizeMode={'contain'}/>
+            <Animated.Image source={require('../assets/images/drive_download/splash_image.png')} entering={FadeInDown.duration(700).springify()} style={styles.logo} resizeMode={'contain'}/>
             <Text>SplashScreen</Text>
         </View>
     )

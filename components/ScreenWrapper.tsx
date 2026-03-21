@@ -16,7 +16,7 @@ const ScreenWrapper = ({ style, children, showPattern = false, isModal = false, 
     }
     return (
         <ImageBackground style={{ flex: 1, backgroundColor: isModal ? colors.white : colors.neutral900 }}
-        source={require('../assets/images/drive-download/bgPattern.png')}
+        source={require('../assets/images/drive_download/bgPattern.png')}
             imageStyle={{ opacity: showPattern ? bgOpacity : 0 }}>
             <View style={[{ paddingTop, paddingBottom, flex: 1 }, style]}>
                 <StatusBar barStyle={'light-content'} backgroundColor={'transparent'} />

@@ -19,7 +19,7 @@ const welcome = () => {
                     </Typo>
                 </View>
 
-                <Animated.Image entering={FadeIn.duration(700).springify()} source={require('../../assets/images/drive-download/welcome.png')}
+                <Animated.Image entering={FadeIn.duration(700).springify()} source={require('../../assets/images/drive_download/welcome.png')}
                  style={style.welcomeImage} resizeMode={"contain"}/>
 
                  <View>
